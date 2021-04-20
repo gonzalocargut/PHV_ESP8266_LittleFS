@@ -47,7 +47,7 @@ Donde X es la opción del tipo de dato, Y las opciones según X, y Z el índice 
  | 21 | ESP.getSdkVersion() | 
  | 22 | ESP.getVcc() | 
 
-Se deben especificar las extensiones a ser interpretadas, por defecto la extensión **".phv"** será interpretada, en el ejemplo ejemploPHVLittleFS.ino se añade la extensión **".html"**, las nuevas extensiones pueden ser agregadas en múltiples llamadas a la función miembro **"cargarExtencionAInterpretar"** o bien realizando una sola llamada separando las extensiones con puntos, por ejemplo **"html.htm.phv.etc"**, no importa que las extensiones se repitan, solo se desperdiciara un poco de RAM. Cualquier archivo que no sea interpretado, será transmitido tal cual según su tipo.
+Se deben especificar las extensiones a ser interpretadas, por defecto la extensión **".phv"** será interpretada, en el ejemplo ejemploPHVLittleFS.ino se añade la extensión **".html"**, las nuevas extensiones pueden ser agregadas en múltiples llamadas a la función miembro **"cargarExtensionAInterpretar"** o bien realizando una sola llamada separando las extensiones con puntos, por ejemplo **"html.htm.phv.etc"**, no importa que las extensiones se repitan, solo se desperdiciara un poco de RAM. Cualquier archivo que no sea interpretado, será transmitido tal cual según su tipo.
 
 También se provee de una función para especificar un archivo de página no encontrada **”cargarPaginaNoEncontrada”**, así es posible tener una página personalizada que permita volver al inicio con un botón u otra función útil, se debe especificar la ruta absoluta hacia el archivo en el almacenamiento. Antes de llamar a esta función el sistema de archivos debe estar inicializado.
 
