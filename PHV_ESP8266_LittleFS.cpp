@@ -56,7 +56,7 @@ void PHVclassLittleFS::cargarMatrizString(String Matriz[], int TamMatriz) {
 	TamMatrizString = TamMatriz;
 }
 
-void PHVclassLittleFS::cargarExtencionAInterpretar(String extencion) {
+void PHVclassLittleFS::cargarExtensionAInterpretar(String extencion) {
 	extencionAInterpretar = extencionAInterpretar + "." + extencion + ".";
 }
 
