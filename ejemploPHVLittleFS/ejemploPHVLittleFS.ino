@@ -25,8 +25,8 @@ inicializacion en el codigo
 #include <LittleFS.h>
 #include "ESP8266EditorWebLittleFS.h"
 
-//const char* ssid = "tu_SSID";
-//const char* password = "tu_clave";
+const char* ssid = "tu_SSID";
+const char* password = "tu_clave";
 const char* host = "esp8266littlefs";
 
 int matrizInt[100] = { 0 };
