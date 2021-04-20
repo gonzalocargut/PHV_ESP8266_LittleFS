@@ -1,13 +1,15 @@
 # PHV_ESP8266_LittleFS
 Librería con interprete PHV servido desde LittleFS (PHV, Preprocesador de Hipertexto en Vuelo).
 
-Ejemplo de página sin interpretar.
+### Ejemplo de página sin interpretar.
 
 ![Screenshot](https://raw.githubusercontent.com/gonzalocargut/PHV_ESP8266_LittleFS/main/ejemplo%20sin%20interpretar.png)
 
-Ejemplo interpretado con PHV.
+### Ejemplo interpretado con PHV.
 
 ![Screenshot](https://raw.githubusercontent.com/gonzalocargut/PHV_ESP8266_LittleFS/main/ejemplo%20interpretado.png)
+
+## Descripción
 
 Se tienen cuatro tipos de datos a interpretar: enteros, flotantes, cadenas (String) y funciones, en estas últimas se entrega una función para enviar datos al cliente que realiza la solicitud.
 
