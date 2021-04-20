@@ -28,7 +28,7 @@ class PHVclassLittleFS {
 		void cargarMatrizString(String Matriz[], int TamMatriz);
 		void cargarPaginaNoEncontrada(String ruta);
 
-		void cargarExtencionAInterpretar(String extencion);
+		void cargarExtensionAInterpretar(String extencion);
 
 		template<typename Z> void enviarHTTP(Z&& x) {
 //			Serial.print(x);
