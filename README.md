@@ -1,5 +1,5 @@
 # PHV_ESP8266_LittleFS
-Librería con interprete PHV servido desde LittleFS (PHV, Preprocesador de Hipertexto en Vuelo).
+Librería con interprete PHV servido desde LittleFS (PHV, Preprocesador de Hipertexto en Vuelo). Convierte paginas estáticas almacenadas como archivos en LittleFS en páginas dinámicas con datos del ESP durante la transmisión de la pagina (por ello “en vuelo”), sin requerir modificaciones en el código del ESP (no se requiere actualizar firmware si no se añaden nuevos datos internos a representar) si la página debe ser modificada para mejorar la gráfica de la página o presentación de los datos. 
 
 ### Ejemplo de página sin interpretar.
 
