@@ -12,6 +12,7 @@
 #ifndef LIBRARIES_PHV_ESP8266_LittleFS_PHV_ESP8266_H_LittleFS_
 #define LIBRARIES_PHV_ESP8266_LittleFS_PHV_ESP8266_H_LittleFS_
 
+
 class PHVclassLittleFS {
 	public:
 		PHVclassLittleFS();
@@ -69,7 +70,7 @@ class PHVclassLittleFS {
 
 		bool cargarDesdeSD(String path, bool paginaNoEncontrada=0);
 		void interpretePHV(File &archivo);
-		void descComando(File &archivo);
+		void descComando(String &comando);
 		void ejecComando(datosComando &comando);
 
 		String fechaHoraFormat(long _milisegundos, int formato);
@@ -77,5 +78,26 @@ class PHVclassLittleFS {
 		const char marcador='$';
 		bool debug = 0;
 };
+
+#define TamFileBufferIn 256
+#define TamFileBufferOut 256
+
+class fileBuffer{
+	public:
+		fileBuffer(File &archivo,ESP8266WebServer *servidorWeb);
+		int available();
+		uint8_t read();
+		void write(uint8_t dato);
+		void enviarBufferSalida();
+	private:
+		int puntbufferIn=0;
+		uint8_t bufferIn[TamFileBufferIn+5] = { 0 };
+		int bufferInLeido=0;
+		File *archivoTrabajo=NULL;
+		int puntbufferOut=0;
+		uint8_t bufferOut[TamFileBufferOut+5] = { 0 };
+		ESP8266WebServer *servidor;
+};
+
 
 #endif /* LIBRARIES_PHV_ESP8266_PHV_ESP8266_H_ */

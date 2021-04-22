@@ -7,7 +7,7 @@
 #include "Arduino.h"
 #include "PHV_ESP8266_LittleFS.h"
 #include <LittleFS.h>
-//#include "PRINT_Y_PRINTLN_MOD.h"
+#include "PRINT_Y_PRINTLN_MOD.h"
 
 PHVclassLittleFS::PHVclassLittleFS() {
 	UnidadFS = NULL;
@@ -109,6 +109,9 @@ bool PHVclassLittleFS::cargarDesdeSD(String path, bool paginaNoEncontrada) {
 	String dataType = "text/plain";
 	if (path.endsWith("/")) {
 		path += "index.htm";
+	}
+	if (path.indexOf(".") < 0) {
+		path += "/index.htm";
 	}
 	printmod(path);
 	String extencion = path.substring(path.lastIndexOf('.'));
@@ -231,104 +234,93 @@ void PHVclassLittleFS::PHV() {
 	detenerCliente();
 }
 
+//void PHVclassLittleFS::interpretePHV(File &archivo) {
+//	char caracter[3]={0};
+//	while (archivo.available()) {
+//		caracter[0] = char(archivo.read());
+//		if (caracter[0] == marcador) { //se busca el iniciador "$$" o doble marcador
+//			caracter[1] = char(archivo.read());
+//			if (caracter[1] == marcador) {
+//				//comando localizado
+//				//inicio descodificacion y reemplazo
+//				//extraer nombre codificado
+//				char caracter[3] = { 0, 0, 0 };
+//				String variable;
+//				variable.reserve(100);
+//				variable = "";
+//				for (int i = 0; i < 100; i++) { //se busca el terminador "$$" o doble marcador
+//					caracter[0] = char(archivo.read());
+//					if (caracter[0] == marcador) {
+//						archivo.read(); //al encontrar uno, se borra el siguiente.
+//						break;
+//					}
+//					else {
+//						variable += caracter[0];
+//					}
+//				}
+//				descComando(variable);
+//			}
+//			else {
+//				enviarHTTP(caracter);
+//			}
+//		}
+//		else {
+//			enviarHTTP(caracter[0]);
+//		}
+//	}
+//}
+
 void PHVclassLittleFS::interpretePHV(File &archivo) {
-	char caracter[3]={0};
-	while (archivo.available()) {
-		caracter[0] = char(archivo.read());
+	fileBuffer bufferDec = fileBuffer(archivo, servidor);
+
+	char caracter[3] = { 0 };
+	while (bufferDec.available()) {
+		caracter[0] = char(bufferDec.read());
 		if (caracter[0] == marcador) { //se busca el iniciador "$$" o doble marcador
-			caracter[1] = char(archivo.read());
+			caracter[1] = char(bufferDec.read());
 			if (caracter[1] == marcador) {
-				descComando(archivo);
+				//comando localizado
+				//enviar buffer para insertar en vuelo la ejecicion de comando
+				bufferDec.enviarBufferSalida();
+				//inicio descodificacion y reemplazo
+				//extraer nombre codificado
+//				char caracter[3] = { 0, 0, 0 };
+				String variable;
+				variable.reserve(100);
+				variable = "";
+				for (int i = 0; i < 100; i++) { //se busca el terminador "$$" o doble marcador
+					caracter[0] = char(bufferDec.read());
+					if (caracter[0] == marcador) {
+						bufferDec.read(); //al encontrar uno, se borra el siguiente.
+						break;
+					}
+					else {
+						variable += caracter[0];
+					}
+				}
+				descComando(variable);
 			}
 			else {
-				enviarHTTP(caracter);
+				bufferDec.write(caracter[0]);
+				bufferDec.write(caracter[1]);
 			}
 		}
 		else {
-			enviarHTTP(caracter[0]);
+			bufferDec.write(caracter[0]);
 		}
 	}
-
+	bufferDec.enviarBufferSalida();
 }
 
-String PHVclassLittleFS::DosDigitos(int valor) {
-	if (valor < 0) {
-		return "00";
-	}
-	String Salida = "";
-	if (valor < 10) {
-		Salida = "0";
-		Salida += valor;
-	}
-	else {
-		Salida = valor;
-	}
-	return Salida;
-}
-
-String PHVclassLittleFS::fechaHoraFormat(long _milisegundos, int formato) {
-	if (formato > 2 or formato < 0) {
-		return String("");
-	}
-	unsigned long hor, minu, seg, mili, milisegundos;
-
-	if (_milisegundos >= 0) {
-		milisegundos = _milisegundos;
-	}
-	else {
-		milisegundos = -_milisegundos;
-	}
-
-	mili = milisegundos % 1000;
-	milisegundos = milisegundos / 1000;
-	hor = (long) (milisegundos / 3600);
-	minu = (long) ((milisegundos - hor * 3600) / 60);
-	seg = milisegundos - (hor * 3600 + minu * 60);
-
-	String horaCodificada = DosDigitos(hor) + ":" + DosDigitos(minu);
-
-	if (formato == 1 or formato == 2) {
-		horaCodificada = horaCodificada + ":" + DosDigitos(seg);
-	}
-
-	if (_milisegundos < 0) {
-		horaCodificada = "(-" + horaCodificada + "?)";
-	}
-
-	if (formato == 2) {
-		return horaCodificada + "." + String(mili);
-	}
-	else {
-		return horaCodificada;
-	}
-}
-
-
-void PHVclassLittleFS::descComando(File &archivo) {
+void PHVclassLittleFS::descComando(String &comando) {
 	datosComando comandoDec;
-	char caracter[3] = { 0, 0, 0 };
-	//inicio descodificacion y reemplazo
-	//extraer nombre codificado
-	String variable;
-	variable.reserve(100);
-	variable = "";
-	for (int i = 0; i < 100; i++) { //se busca el terminador "$$" o doble marcador
-		caracter[0] = char(archivo.read());
-		if (caracter[0] == marcador) {
-			archivo.read(); //al encontrar uno, se borra el siguiente.
-			break;
-		}
-		else {
-			variable += caracter[0];
-		}
-	}
 	//ahora variable almacena el comando
 	//descodificar comando
-	comandoDec.tipoComando = variable.charAt(0);
+	comandoDec.tipoComando = comando.charAt(0);
 	char variableChar[3] = { 0, 0, 0 };
-	variableChar[0] = variable.charAt(1);
-	variableChar[1] = variable.charAt(2);
-	variableChar[2] = variable.charAt(3);
+	variableChar[0] = comando.charAt(1);
+	variableChar[1] = comando.charAt(2);
+	variableChar[2] = comando.charAt(3);
 	for (int i = 0; i < 3; i++) {
 		comandoDec.argumento[i] = int(variableChar[i]) - 48;
 		if (comandoDec.argumento[i] > 9 or comandoDec.argumento[i] < 0) {
@@ -337,7 +329,7 @@ void PHVclassLittleFS::descComando(File &archivo) {
 	}
 	comandoDec.argumento[3] = comandoDec.argumento[1] * 10 + comandoDec.argumento[2];
 	//extraer indice
-	comandoDec.indice = variable.substring(4).toInt();
+	comandoDec.indice = comando.substring(4).toInt();
 	//verificar indice valido
 	if (comandoDec.indice < 0) {
 		return;
@@ -346,7 +338,7 @@ void PHVclassLittleFS::descComando(File &archivo) {
 	ejecComando(comandoDec);
 }
 
-void PHVclassLittleFS::ejecComando(datosComando &comando){
+void PHVclassLittleFS::ejecComando(datosComando &comando) {
 
 	//ultima verificacion de indice y reemplazar
 	String dato = "";
@@ -458,4 +450,93 @@ void PHVclassLittleFS::ejecComando(datosComando &comando){
 			break;
 	}
 //	printlnmod(" tipoComando:", comando.tipoComando, " arg0:", comando.argumento[0], " arg1:", comando.argumento[1], " arg2:", comando.argumento[2], " indice:", comando.indice);
+}
+
+String PHVclassLittleFS::DosDigitos(int valor) {
+	if (valor < 0) {
+		return "00";
+	}
+	String Salida = "";
+	if (valor < 10) {
+		Salida = "0";
+		Salida += valor;
+	}
+	else {
+		Salida = valor;
+	}
+	return Salida;
+}
+
+String PHVclassLittleFS::fechaHoraFormat(long _milisegundos, int formato) {
+	if (formato > 2 or formato < 0) {
+		return String("");
+	}
+	unsigned long hor, minu, seg, mili, milisegundos;
+
+	if (_milisegundos >= 0) {
+		milisegundos = _milisegundos;
+	}
+	else {
+		milisegundos = -_milisegundos;
+	}
+
+	mili = milisegundos % 1000;
+	milisegundos = milisegundos / 1000;
+	hor = (long) (milisegundos / 3600);
+	minu = (long) ((milisegundos - hor * 3600) / 60);
+	seg = milisegundos - (hor * 3600 + minu * 60);
+
+	String horaCodificada = DosDigitos(hor) + ":" + DosDigitos(minu);
+
+	if (formato == 1 or formato == 2) {
+		horaCodificada = horaCodificada + ":" + DosDigitos(seg);
+	}
+
+	if (_milisegundos < 0) {
+		horaCodificada = "(-" + horaCodificada + "?)";
+	}
+
+	if (formato == 2) {
+		return horaCodificada + "." + String(mili);
+	}
+	else {
+		return horaCodificada;
+	}
+}
+
+fileBuffer::fileBuffer(File &archivo, ESP8266WebServer *servidorWeb) {
+	archivoTrabajo = &archivo;
+	servidor = servidorWeb;
+}
+int fileBuffer::available() {
+	return (archivoTrabajo->available() + bufferInLeido - puntbufferIn);
+}
+
+uint8_t fileBuffer::read() {
+	if (available() > 0) {
+		if (puntbufferIn >= bufferInLeido) {
+			bufferInLeido = archivoTrabajo->read(bufferIn, TamFileBufferIn);
+			puntbufferIn = 0;
+		}
+		char dato = bufferIn[puntbufferIn];
+		puntbufferIn++;
+		return dato;
+	}
+	else {
+		return 0;
+	}
+}
+
+void fileBuffer::write(uint8_t dato) {
+	if (puntbufferOut >= TamFileBufferOut) {
+		servidor->client().write(bufferOut, puntbufferOut);
+		puntbufferOut = 0;
+	}
+	bufferOut[puntbufferOut] = dato;
+	puntbufferOut++;
+}
+
+void fileBuffer::enviarBufferSalida() {
+	servidor->client().write(bufferOut, puntbufferOut);
+	puntbufferOut = 0;
 }
