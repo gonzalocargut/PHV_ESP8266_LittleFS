@@ -113,7 +113,7 @@ bool PHVclassLittleFS::cargarDesdeSD(String path, bool paginaNoEncontrada) {
 	if (path.indexOf(".") < 0) {
 		path += "/index.htm";
 	}
-	printmod(path);
+	//printmod(path);
 	String extencion = path.substring(path.lastIndexOf('.'));
 	extencion = extencion + ".";
 
